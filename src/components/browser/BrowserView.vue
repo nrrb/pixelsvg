@@ -13,6 +13,18 @@ const docs = computed(() => docStore.sortedDocList)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const importError = ref<string | null>(null)
 
+const sampleSVGs = import.meta.glob('/src/samples/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
+
+function importSamples(): void {
+  importError.value = null
+  for (const [path, text] of Object.entries(sampleSVGs)) {
+    const filename = path.split('/').pop() ?? path
+    const result = parseSVG(text, filename)
+    if ('message' in result) continue
+    docStore.importDocument(result.name, result.width, result.height, result.pixels)
+  }
+}
+
 function triggerImport(): void {
   importError.value = null
   fileInputRef.value?.click()
@@ -44,6 +56,7 @@ function onFileSelected(e: Event): void {
       <h1>PixelSVG</h1>
       <div class="header-actions">
         <input ref="fileInputRef" type="file" accept=".svg,image/svg+xml" class="file-input" @change="onFileSelected" />
+        <button class="import-btn" @click="importSamples">Import Samples</button>
         <button class="import-btn" @click="triggerImport">Import SVG</button>
         <NewDocumentButton />
       </div>
