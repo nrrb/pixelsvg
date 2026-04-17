@@ -9,6 +9,8 @@ interface GestureState {
   lastMiddleX: number
   lastMiddleY: number
   pinchOccurred: boolean
+  pendingDownTimer: ReturnType<typeof setTimeout> | null
+  pendingDownEvent: PointerEvent | null
 }
 
 function midpoint(a: PointerEvent, b: PointerEvent) {
@@ -37,6 +39,27 @@ export function useGestures(
     lastMiddleX: 0,
     lastMiddleY: 0,
     pinchOccurred: false,
+    pendingDownTimer: null,
+    pendingDownEvent: null,
+  }
+
+  function flushPendingDown(): void {
+    if (state.pendingDownTimer !== null) {
+      clearTimeout(state.pendingDownTimer)
+      state.pendingDownTimer = null
+    }
+    if (state.pendingDownEvent) {
+      onSinglePointerDown(state.pendingDownEvent)
+      state.pendingDownEvent = null
+    }
+  }
+
+  function cancelPendingDown(): void {
+    if (state.pendingDownTimer !== null) {
+      clearTimeout(state.pendingDownTimer)
+      state.pendingDownTimer = null
+    }
+    state.pendingDownEvent = null
   }
 
   function onPointerDown(e: PointerEvent): void {
@@ -58,10 +81,22 @@ export function useGestures(
 
     if (state.pointers.size === 1) {
       if (!state.pinchOccurred) {
-        onSinglePointerDown(e)
+        if (e.pointerType === 'touch') {
+          // Defer touch so a fast second finger can cancel before drawing begins
+          state.pendingDownEvent = e
+          state.pendingDownTimer = setTimeout(() => {
+            if (state.pendingDownEvent) {
+              onSinglePointerDown(state.pendingDownEvent)
+              state.pendingDownEvent = null
+            }
+          }, 50)
+        } else {
+          onSinglePointerDown(e)
+        }
       }
     } else if (state.pointers.size === 2) {
-      // Starting a two-finger gesture — cancel single-pointer drawing
+      // Second finger arrived — cancel any pending draw start and begin pinch
+      cancelPendingDown()
       state.pinchOccurred = true
       onSinglePointerUp(e)
       const [a, b] = Array.from(state.pointers.values())
@@ -85,6 +120,8 @@ export function useGestures(
 
     if (state.pointers.size === 1) {
       if (!state.pinchOccurred) {
+        // Flush deferred touch down immediately on drag so there's no latency
+        if (state.pendingDownEvent) flushPendingDown()
         onSinglePointerMove(e)
       }
     } else if (state.pointers.size === 2) {
@@ -96,7 +133,6 @@ export function useGestures(
       const dy = mid.y - state.lastMidY
       const zoomFactor = dist / (state.lastDist || dist)
 
-      // Apply pan first, then zoom toward new midpoint
       editorStore.panViewport(dx, dy)
       if (Math.abs(zoomFactor - 1) > 0.001) {
         editorStore.zoomViewport(zoomFactor, mid.x, mid.y)
@@ -115,7 +151,11 @@ export function useGestures(
     }
     if (state.pointers.size === 1) {
       if (!state.pinchOccurred) {
+        // Flush any deferred touch down before firing up (handles quick taps)
+        if (state.pendingDownEvent) flushPendingDown()
         onSinglePointerUp(e)
+      } else {
+        cancelPendingDown()
       }
       // Last finger lifted — reset pinch guard so next touch draws normally
       state.pinchOccurred = false
@@ -132,14 +172,11 @@ export function useGestures(
     const y = e.clientY - rect.top
 
     if (e.ctrlKey || e.metaKey) {
-      // Trackpad pinch or Ctrl/Cmd+scroll → zoom toward cursor
       const factor = Math.exp(-e.deltaY * 0.01)
       editorStore.zoomViewport(factor, x, y)
     } else if (e.shiftKey) {
-      // Shift+scroll → pan horizontally (scroll wheel sends deltaY; treat it as X)
       editorStore.panViewport(-(e.deltaY || e.deltaX), 0)
     } else {
-      // Plain scroll or trackpad two-finger pan → pan both axes
       editorStore.panViewport(-e.deltaX, -e.deltaY)
     }
   }
