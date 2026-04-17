@@ -8,6 +8,7 @@ interface GestureState {
   middleButtonDown: boolean
   lastMiddleX: number
   lastMiddleY: number
+  pinchOccurred: boolean
 }
 
 function midpoint(a: PointerEvent, b: PointerEvent) {
@@ -35,6 +36,7 @@ export function useGestures(
     middleButtonDown: false,
     lastMiddleX: 0,
     lastMiddleY: 0,
+    pinchOccurred: false,
   }
 
   function onPointerDown(e: PointerEvent): void {
@@ -55,9 +57,12 @@ export function useGestures(
     state.pointers.set(e.pointerId, e)
 
     if (state.pointers.size === 1) {
-      onSinglePointerDown(e)
+      if (!state.pinchOccurred) {
+        onSinglePointerDown(e)
+      }
     } else if (state.pointers.size === 2) {
       // Starting a two-finger gesture — cancel single-pointer drawing
+      state.pinchOccurred = true
       onSinglePointerUp(e)
       const [a, b] = Array.from(state.pointers.values())
       const mid = midpoint(a, b)
@@ -79,7 +84,9 @@ export function useGestures(
     state.pointers.set(e.pointerId, e)
 
     if (state.pointers.size === 1) {
-      onSinglePointerMove(e)
+      if (!state.pinchOccurred) {
+        onSinglePointerMove(e)
+      }
     } else if (state.pointers.size === 2) {
       const [a, b] = Array.from(state.pointers.values())
       const mid = midpoint(a, b)
@@ -107,7 +114,11 @@ export function useGestures(
       return
     }
     if (state.pointers.size === 1) {
-      onSinglePointerUp(e)
+      if (!state.pinchOccurred) {
+        onSinglePointerUp(e)
+      }
+      // Last finger lifted — reset pinch guard so next touch draws normally
+      state.pinchOccurred = false
     }
     state.pointers.delete(e.pointerId)
   }
