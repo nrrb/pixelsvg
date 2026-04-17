@@ -85,6 +85,7 @@ function onKeydown(e: KeyboardEvent): void {
         </span>
       </div>
       <button class="export-btn" :disabled="!docStore.activeDoc" @click="exportSVG">Export SVG</button>
+      <a class="fork-link" href="https://github.com/nrrb/pixelsvg" target="_blank" rel="noopener">Fork this</a>
     </div>
   </header>
 </template>
@@ -175,4 +176,11 @@ function onKeydown(e: KeyboardEvent): void {
 }
 .export-btn:hover:not(:disabled) { background: #f0f0f0; }
 .export-btn:disabled { opacity: 0.4; cursor: default; }
+.fork-link {
+  font-size: 12px;
+  color: #888;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.fork-link:hover { color: #000; }
 </style>

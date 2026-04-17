@@ -55,6 +55,7 @@ function onFileSelected(e: Event): void {
     <header class="browser-header">
       <h1>PixelSVG</h1>
       <div class="header-actions">
+        <a class="fork-link" href="https://github.com/nrrb/pixelsvg" target="_blank" rel="noopener">Fork this</a>
         <input ref="fileInputRef" type="file" accept=".svg,image/svg+xml" class="file-input" @change="onFileSelected" />
         <button class="import-btn" @click="importSamples">Import Samples</button>
         <button class="import-btn" @click="triggerImport">Import SVG</button>
@@ -112,6 +113,13 @@ h1 { font-size: 18px; font-weight: 600; }
   font-size: 13px;
 }
 .import-btn:hover { background: #f0f0f0; }
+.fork-link {
+  font-size: 13px;
+  color: #888;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.fork-link:hover { color: #000; }
 .import-error {
   background: #ffebee;
   color: #c62828;
