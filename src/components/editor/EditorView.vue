@@ -3,6 +3,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useDocumentStore } from '../../stores/documentStore'
 import TopBar from './TopBar.vue'
 import PixelCanvas from './PixelCanvas.vue'
+import BottomBar from './BottomBar.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -18,6 +19,7 @@ if (!ok) router.replace('/')
   <div class="editor-layout">
     <TopBar />
     <PixelCanvas />
+    <BottomBar />
   </div>
 </template>
 
