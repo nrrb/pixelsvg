@@ -65,6 +65,21 @@ export const useDocumentStore = defineStore('document', () => {
     return id
   }
 
+  function importDocument(name: string, width: number, height: number, pixels: Uint8Array): string {
+    const id = crypto.randomUUID()
+    const now = Date.now()
+    const doc: PixelDocument = {
+      id, name, createdAt: now, updatedAt: now, width, height,
+      pixelData: encodePixels(pixels),
+    }
+    const entry: DocListEntry = { id, name, createdAt: now, updatedAt: now, width, height }
+    docList.value.push(entry)
+    persistSchema()
+    const err = saveDocument(doc)
+    if (err) storageError.value = err
+    return id
+  }
+
   function openDocument(id: string): boolean {
     const doc = loadDocument(id)
     if (!doc) return false
@@ -158,6 +173,7 @@ export const useDocumentStore = defineStore('document', () => {
     sortedDocList,
     initStore,
     createDocument,
+    importDocument,
     openDocument,
     saveActiveDocument,
     deleteDocument,

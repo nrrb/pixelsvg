@@ -11,7 +11,5 @@ onMounted(() => docStore.initStore())
 </template>
 
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body, #app { width: 100%; height: 100%; overflow: hidden; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; }
 </style>

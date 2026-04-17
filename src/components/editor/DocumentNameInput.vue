@@ -60,7 +60,7 @@ function onKeydown(e: KeyboardEvent): void {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 240px;
+  min-width: 0;
 }
 .doc-name:hover {
   background: rgba(0,0,0,0.07);
@@ -71,7 +71,8 @@ function onKeydown(e: KeyboardEvent): void {
   border-radius: 3px;
   font-size: inherit;
   font-family: inherit;
-  max-width: 240px;
+  width: 100%;
+  min-width: 0;
   outline: none;
 }
 </style>

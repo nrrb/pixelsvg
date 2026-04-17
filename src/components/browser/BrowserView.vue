@@ -1,19 +1,56 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDocumentStore } from '../../stores/documentStore'
+import { parseSVG } from '../../lib/svgImport'
 import DocumentCard from './DocumentCard.vue'
 import NewDocumentButton from './NewDocumentButton.vue'
 
 const docStore = useDocumentStore()
+const router = useRouter()
 const docs = computed(() => docStore.sortedDocList)
+
+const fileInputRef = ref<HTMLInputElement | null>(null)
+const importError = ref<string | null>(null)
+
+function triggerImport(): void {
+  importError.value = null
+  fileInputRef.value?.click()
+}
+
+function onFileSelected(e: Event): void {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  ;(e.target as HTMLInputElement).value = '' // allow re-selecting same file
+
+  const reader = new FileReader()
+  reader.onload = (ev) => {
+    const text = ev.target?.result as string
+    const result = parseSVG(text, file.name)
+    if ('message' in result) {
+      importError.value = result.message
+      return
+    }
+    const id = docStore.importDocument(result.name, result.width, result.height, result.pixels)
+    router.push(`/editor/${id}`)
+  }
+  reader.readAsText(file)
+}
 </script>
 
 <template>
   <div class="browser-layout">
     <header class="browser-header">
       <h1>PixelSVG</h1>
-      <NewDocumentButton />
+      <div class="header-actions">
+        <input ref="fileInputRef" type="file" accept=".svg,image/svg+xml" class="file-input" @change="onFileSelected" />
+        <button class="import-btn" @click="triggerImport">Import SVG</button>
+        <NewDocumentButton />
+      </div>
     </header>
+    <div v-if="importError" class="import-error" @click="importError = null">
+      {{ importError }} ✕
+    </div>
     <main class="browser-main">
       <div v-if="docs.length === 0" class="empty">
         No documents yet. Create one to get started.
@@ -46,6 +83,30 @@ const docs = computed(() => docStore.sortedDocList)
   background: white;
 }
 h1 { font-size: 18px; font-weight: 600; }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.file-input { display: none; }
+.import-btn {
+  padding: 8px 16px;
+  background: white;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.import-btn:hover { background: #f0f0f0; }
+.import-error {
+  background: #ffebee;
+  color: #c62828;
+  font-size: 12px;
+  padding: 6px 24px;
+  cursor: pointer;
+  border-bottom: 1px solid #ffcdd2;
+}
 .browser-main {
   flex: 1;
   overflow-y: auto;

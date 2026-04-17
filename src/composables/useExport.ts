@@ -32,7 +32,7 @@ export function useExport() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${doc.meta.name}.svg`
+    a.download = `${doc.meta.name}-${width}x${height}.svg`
     a.click()
     URL.revokeObjectURL(url)
   }

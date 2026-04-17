@@ -242,6 +242,8 @@ export function useCanvasRenderer(getCanvas: () => HTMLCanvasElement | null) {
   watch(() => editorStore.selection, requestRedraw, { deep: true })
   watch(() => editorStore.pasteGhost, requestRedraw, { deep: true })
   watch(() => docStore.activeDoc, requestRedraw)
+  watch(() => docStore.activeDoc?.meta.width, requestRedraw)
+  watch(() => docStore.activeDoc?.meta.height, requestRedraw)
 
   return { requestRedraw, canvasToGrid }
 }

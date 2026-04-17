@@ -111,6 +111,7 @@ onUnmounted(() => {
       @pointermove="gestures.onPointerMove"
       @pointerup="gestures.onPointerUp"
       @pointercancel="gestures.onPointerUp"
+      @mousedown.middle.prevent
       @wheel.passive="false"
       @wheel="gestures.onWheel"
     />
