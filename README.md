@@ -12,6 +12,7 @@ A minimal pixel drawing app that runs entirely in the browser. Draw on a grid, s
 - **Configurable grid size** — any width and height, editable at any time from the top bar; resizing crops or expands from the top-left corner
 - **SVG export** — exports as a clean SVG where each black square is a `<rect>` element and the white background is transparent; filename includes the canvas dimensions
 - **SVG import** — import any SVG exported by PixelSVG; canvas size is detected automatically from the `viewBox`
+- **Sample documents** — load bundled sample pixel art with one click
 
 ## Usage
 
@@ -60,6 +61,10 @@ Click **Export SVG** in the top bar to download the current document as an `.svg
 ### Import
 
 Click **Import SVG** on the documents screen and select an SVG file. The canvas size is read from the SVG's `viewBox` attribute. Only `<rect>` elements with `width="1"` and `height="1"` are imported as black pixels — any other shapes are ignored. The document name defaults to the filename.
+
+### Samples
+
+Click **Import Samples** on the documents screen to load all bundled sample documents at once. Each sample is added as a new document.
 
 ## Storage
 
