@@ -22,12 +22,12 @@ A minimal pixel drawing app that runs entirely in the browser. Draw on a grid, s
 |--------|--------|
 | Click a square | Toggle black/white |
 | Click and drag | Paint multiple squares (direction locked to first click) |
-| `D` | Switch to Draw mode |
-| `S` | Switch to Select mode |
+| `D` or bottom-right button | Switch to Draw mode |
+| `S` or bottom-left button | Switch to Select mode |
 
 ### Select & Paste
 
-1. Press `S` to enter Select mode
+1. Press `S` or tap the **Select** button to enter Select mode
 2. Click and drag to draw a selection rectangle
 3. Press `Cmd+C` (or `Ctrl+C`) to copy the selection
 4. Move the cursor — a ghost outline follows it showing where the paste will land
